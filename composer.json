@@ -1,4 +1,9 @@
 {
+    "autoload": {
+        "psr-4": {
+        "Cvar1984\\": "src/"
+	}
+    },
     "require": {
         "thedudeguy/rcon": "^1.0",
         "vlucas/phpdotenv": "^5.6"

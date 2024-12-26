@@ -1,11 +1,11 @@
 <?php
 
-require_once __DIR__ . '/vendor/autoload.php';
+namespace Cvar1984\Minecraft;
 
 final class MinecraftUser
 {
     private string $whitelistPath;
-    private ?Thedudeguy\Rcon $rconInstance;
+    private ?\Thedudeguy\Rcon $rconInstance;
 
     public const ID_OFFLINE_ONLY = 0;
     public const ID_ONLINE_ONLY = 1;
@@ -19,9 +19,9 @@ final class MinecraftUser
     public function setupRcon(string $host, string $port, string $password, int $timeout = 3): self
     {
         try {
-            $this->rconInstance = new Thedudeguy\Rcon($host, $port, $password, $timeout);
+            $this->rconInstance = new \Thedudeguy\Rcon($host, $port, $password, $timeout);
             $this->rconInstance->connect();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             echo "RCON connection error: " . $e->getMessage() . "\n";
         }
         return $this;

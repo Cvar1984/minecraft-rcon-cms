@@ -1,8 +1,11 @@
 <?php
 
-// Example Usage
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Cvar1984\Minecraft\MinecraftUser;
+// Example adding user to whitelist
 try {
-    $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__, '.env'); // Point to the directory containing .env
+    $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__, '/../.env'); // Point to the directory containing .env
     $dotenv->load();
     $whitelistPath = $_ENV['WHITELIST_PATH'];
     $rconHost = $_ENV['RCON_HOST'];
