@@ -27,15 +27,15 @@ final class MinecraftUser
         return $this;
     }
 
-    private function getOnlineUuid(string $username): ?string
+    private function getOnlineUuid(string $username): false|string
     {
         $url = "https://api.mojang.com/users/profiles/minecraft/" . urlencode($username);
         $response = @file_get_contents($url);
         if ($response === false) {
-            return null; // Fail gracefully
+            return false; // Fail gracefully
         }
         $data = json_decode($response, true);
-        return $data['id'] ?? null;
+        return $this->formatUuid($data['id']) ?: false;
     }
 
     private function getOfflineUuid(string $username): string
@@ -45,7 +45,7 @@ final class MinecraftUser
         $hash[6] = chr(ord($hash[6]) & 0x0f | 0x30); // Set version to 3
         $hash[8] = chr(ord($hash[8]) & 0x3f | 0x80); // Set IETF variant
         $hex = bin2hex($hash);
-        return $hex;
+        return $this->formatUuid($hex);
     }
 
     private function formatUuid(string $uuid): string
@@ -60,9 +60,9 @@ final class MinecraftUser
         );
     }
 
-    public function getUuid(string $username, int $method = self::ID_ONLINE_PRIORITY): string
+    public function getUuid(string $username, int $method = self::ID_ONLINE_PRIORITY): false|string
     {
-        $uuid = null;
+        $uuid = '';
         switch ($method) {
             case self::ID_ONLINE_ONLY:
                 $uuid = $this->getOnlineUuid($username);
@@ -75,12 +75,15 @@ final class MinecraftUser
                 $uuid = $this->getOnlineUuid($username) ?? $this->getOfflineUuid($username);
                 break;
         }
-        return $this->formatUuid($uuid);
+        return $uuid ?: false;
     }
 
     public function addToWhitelist(string $username, int $method = self::ID_ONLINE_PRIORITY): self
     {
         $uuid = $this->getUuid($username, $method);
+        if ($uuid === false) {
+            return $this;
+        }
 
         // Read current whitelist
         $whitelist = json_decode(file_get_contents($this->whitelistPath), true) ?: [];
@@ -104,5 +107,9 @@ final class MinecraftUser
     {
         $this->rconInstance->sendCommand("whitelist reload");
         return $this;
+    }
+    public function getWhitelist(): array
+    {
+        return json_decode(file_get_contents($this->whitelistPath), true) ?: [];
     }
 }
